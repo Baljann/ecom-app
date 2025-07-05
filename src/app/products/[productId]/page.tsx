@@ -3,9 +3,11 @@ import ProductClient from "./ProductClient";
 export default async function ProductPage({
   params,
 }: {
-  params: { productId: string };
+  params: Promise<{ productId: string }>;
 }) {
-  const res = await fetch(`https://dummyjson.com/products/${params.productId}`);
+  const { productId } = await params;
+  console.log(productId);
+  const res = await fetch(`https://dummyjson.com/products/${productId}`);
   if (!res.ok) {
     return <div>Error loading product</div>;
   }

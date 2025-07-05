@@ -19,7 +19,7 @@ export default function CartPage() {
     return (
       <div className="container min-h-screen mx-auto p-4">
         <h1 className="text-3xl font-bold mb-4">Your cart is empty</h1>
-        <p className="text-gray-600">
+        <p>
           Add some products to your cart to get started!
         </p>
       </div>
