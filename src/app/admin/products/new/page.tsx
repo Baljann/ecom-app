@@ -2,9 +2,8 @@
 
 import { FieldError, useForm, Controller } from "react-hook-form";
 import { useActionState } from "react";
-import { QRCodeSVG } from "qrcode.react";
+// import { QRCodeSVG } from "qrcode.react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import {
   Product,
   allCategories,
@@ -40,7 +39,6 @@ export interface NewProductFormState {
 
 export default function NewProductForm() {
   const router = useRouter();
-  const [imageUrl, setImageUrl] = useState<string[]>([]);
   const [state, formAction, isPending] = useActionState<
     NewProductFormState,
     FormData
@@ -52,6 +50,7 @@ export default function NewProductForm() {
     formState: { errors },
     watch,
     setValue,
+
     control,
   } = useForm<Partial<Product>>({
     defaultValues: {
@@ -65,7 +64,7 @@ export default function NewProductForm() {
     },
   });
 
-  const qrText = watch("meta.qrCode");
+  // const qrText = watch("meta.qrCode");
 
   const onSubmit = (data: Partial<Product>) => {
     const formData = new FormData();
