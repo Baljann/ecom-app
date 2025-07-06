@@ -6,16 +6,36 @@ import {
   Tag,
 } from "@/types/product";
 import { z } from "zod";
+import qrcode from "qrcode";
+import { db } from "@/utils/firebase";
+import { collection, addDoc, setDoc } from "firebase/firestore";
 
 const newProductSchema = z.object({
   title: z.string().min(3).max(100),
   description: z.string().min(50).max(500),
   category: z.nativeEnum(Category),
   price: z.coerce.number().min(0.01, "Price must be greater than 0"),
+  discountPercentage: z.coerce.number().min(0.01, "Discount must be positive"),
+  stock: z.coerce.number().min(0, "Stock must be 0 or more"),
+  tags: z.array(z.nativeEnum(Tag)).optional(),
+  brand: z.string().min(2).max(50),
+  weight: z.coerce.number().min(0.01, "Weight must be positive"),
+  dimensions: z.object({
+    width: z.coerce.number().min(0.01, "Width must be positive"),
+    height: z.coerce.number().min(0.01, "Height must be positive"),
+    depth: z.coerce.number().min(0.01, "Depth must be positive"),
+  }),
+  warrantyInformation: z.string().min(2).max(100),
+  shippingInformation: z.string().min(2).max(100),
   availabilityStatus: z.nativeEnum(AvailabilityStatus),
   returnPolicy: z.nativeEnum(ReturnPolicy),
-  tags: z.array(z.nativeEnum(Tag)).optional(),
-  
+  minimumOrderQuantity: z.coerce.number().min(1, "Minimum order is 1"),
+  meta: z
+    .object({
+      barcode: z.string().optional(),
+      qrCode: z.string().optional(),
+    })
+    .optional(),
 });
 
 export async function AddNewProductAction(
@@ -53,12 +73,48 @@ export async function AddNewProductAction(
     };
   } else {
     console.log(result);
-    // TODO: Send data to Firebase
-    return {
-      success: true,
-      message: "The product is created successfully",
-    };
-  }
 
-  console.log("Adding a new product...");
+    try {
+      const docRef = await addDoc(collection(db, "products"), {
+        ...result.data,
+      });
+
+      const productId = docRef.id;
+      const productPageUrl = `${
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      }/products/${productId}`;
+
+      let qrCodeDataUrl: string | undefined;
+      try {
+        qrCodeDataUrl = await qrcode.toDataURL(productPageUrl);
+      } catch (err) {
+        console.error("Failed to generate QR code:", err);
+      }
+
+      await setDoc(
+        docRef,
+        {
+          ...result.data,
+          meta: {
+            ...result.data.meta,
+            qrCode: qrCodeDataUrl,
+          },
+        },
+        { merge: true }
+      );
+
+      console.log("Document written with ID: ", productId);
+
+      return {
+        success: true,
+        message: "The product is created successfully",
+      };
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      return {
+        success: false,
+        message: "Failed to add product",
+      };
+    }
+  }
 }

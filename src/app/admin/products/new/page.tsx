@@ -1,5 +1,10 @@
 "use client";
-import { FieldError, useForm } from "react-hook-form";
+
+import { FieldError, useForm, Controller } from "react-hook-form";
+import { useActionState } from "react";
+import { QRCodeSVG } from "qrcode.react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import {
   Product,
   allCategories,
@@ -11,12 +16,12 @@ import {
   Tag,
   Category,
 } from "@/types/product";
-import { useActionState } from "react";
 import { AddNewProductAction } from "@/app/actions/admin/products";
 import InputField from "@/components/common/InputField";
 import SelectField from "@/components/common/SelectField";
 import TagsCheckboxGroup from "@/components/common/TagsCheckboxGroup";
-// import { QRCodeSVG } from "qrcode.react";
+import Button from "@/components/common/Button";
+import ImageUploadField from "@/components/common/ImageUploadField";
 
 const initialState = {
   success: false,
@@ -33,7 +38,9 @@ export interface NewProductFormState {
   };
 }
 
-export default function Admin() {
+export default function NewProductForm() {
+  const router = useRouter();
+  const [imageUrl, setImageUrl] = useState<string[]>([]);
   const [state, formAction, isPending] = useActionState<
     NewProductFormState,
     FormData
@@ -43,9 +50,9 @@ export default function Admin() {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
     watch,
     setValue,
+    control,
   } = useForm<Partial<Product>>({
     defaultValues: {
       title: state?.inputs?.title ?? undefined,
@@ -58,7 +65,7 @@ export default function Admin() {
     },
   });
 
-  // const qrText = watch("meta.qrCode");
+  const qrText = watch("meta.qrCode");
 
   const onSubmit = (data: Partial<Product>) => {
     const formData = new FormData();
@@ -122,6 +129,10 @@ export default function Admin() {
           value={watch("category") ?? ""}
           onChange={(val) => setValue("category", val as Category)}
           error={errors.category}
+        />
+        <input
+          type="hidden"
+          {...register("category", { required: "Category is required" })}
         />
 
         <InputField
@@ -254,8 +265,16 @@ export default function Admin() {
               AvailabilityStatus[statusKey as keyof typeof AvailabilityStatus],
           }))}
           value={watch("availabilityStatus") ?? ""}
-          onChange={(val) => setValue("availabilityStatus", val as AvailabilityStatus)}
+          onChange={(val) =>
+            setValue("availabilityStatus", val as AvailabilityStatus)
+          }
           error={errors.availabilityStatus}
+        />
+        <input
+          type="hidden"
+          {...register("availabilityStatus", {
+            required: "Availability status is required",
+          })}
         />
 
         <SelectField
@@ -268,6 +287,12 @@ export default function Admin() {
           value={watch("returnPolicy") ?? ""}
           onChange={(val) => setValue("returnPolicy", val as ReturnPolicy)}
           error={errors.returnPolicy}
+        />
+        <input
+          type="hidden"
+          {...register("returnPolicy", {
+            required: "Return policy is required",
+          })}
         />
 
         <InputField
@@ -286,45 +311,50 @@ export default function Admin() {
           label="Barcode"
           id="meta.barcode"
           placeholder="Enter barcode"
-          register={register("meta.barcode")}
+          register={register("meta.barcode", {
+            required: "Barcode is required",
+            min: 1,
+          })}
           error={errors.meta?.barcode}
         />
 
-        {/* 
-          To be adder later with firebase storage
-        
-        {product?.meta?.qrCode && (
+        {/* {product?.meta?.qrCode && (
           <div className="my-4 text-center">
             <p className="mb-2 font-semibold text-slate-700">
               QR Code for product page:
             </p>
             <QRCodeSVG value={product.meta.qrCode} size={128} />
           </div>
-        )} 
-
-        <InputField
-          label="Image 1 URL"
-          id="images.0"
-          placeholder="https://example.com/image1.jpg"
-          register={register("images.0")}
-          error={errors.images?.[0]}
+        )} */}
+        <Controller
+          name="images"
+          control={control}
+          rules={{
+            validate: (value) =>
+              (value && value.length > 0) || "At least one photo is required",
+          }}
+          render={({ field, fieldState }) => (
+            <>
+              <ImageUploadField
+                value={field.value || []}
+                onChange={field.onChange}
+              />
+              {fieldState.error && (
+                <p className="text-red-500 text-sm mt-1">
+                  {fieldState.error.message}
+                </p>
+              )}
+            </>
+          )}
         />
 
-        <InputField
-          label="Image 2 URL"
-          id="images.1"
-          placeholder="https://example.com/image2.jpg"
-          register={register("images.1")}
-          error={errors.images?.[1]}
-        />
-         */}
+        <div className="flex gap-2 flex-col lg:flex-row">
+          <Button type="button" onClick={() => router.back()}>
+            Back to Dashboard
+          </Button>
 
-        <button
-          type="submit"
-          className="w-full py-3 mt-4 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg shadow-md transition"
-        >
-          Create Product
-        </button>
+          <Button type="submit">Create Product</Button>
+        </div>
       </form>
     </main>
   );
