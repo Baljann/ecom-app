@@ -4,6 +4,7 @@ import { FieldError, useForm, Controller } from "react-hook-form";
 import { useActionState } from "react";
 // import { QRCodeSVG } from "qrcode.react";
 import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import {
   Product,
   allCategories,
@@ -35,6 +36,7 @@ export interface NewProductFormState {
   errors?: {
     [K in keyof Product]?: string[];
   };
+  data?: Product;
 }
 
 export default function NewProductForm() {
@@ -50,7 +52,6 @@ export default function NewProductForm() {
     formState: { errors },
     watch,
     setValue,
-
     control,
   } = useForm<Partial<Product>>({
     defaultValues: {
@@ -58,40 +59,83 @@ export default function NewProductForm() {
       description: state?.inputs?.description ?? undefined,
       category: state?.inputs?.category ?? undefined,
       price: state?.inputs?.price ?? undefined,
+      discountPercentage: state?.inputs?.discountPercentage ?? undefined,
+      stock: state?.inputs?.stock ?? undefined,
+      tags: state?.inputs?.tags ?? [],
+      brand: state?.inputs?.brand ?? undefined,
+      weight: state?.inputs?.weight ?? undefined,
+      dimensions: {
+        width: state?.inputs?.dimensions?.width ?? undefined,
+        height: state?.inputs?.dimensions?.height ?? undefined,
+        depth: state?.inputs?.dimensions?.depth ?? undefined,
+      },
+      warrantyInformation: state?.inputs?.warrantyInformation ?? undefined,
+      shippingInformation: state?.inputs?.shippingInformation ?? undefined,
       availabilityStatus: state?.inputs?.availabilityStatus ?? undefined,
       returnPolicy: state?.inputs?.returnPolicy ?? undefined,
-      tags: state?.inputs?.tags ?? [],
+      minimumOrderQuantity: state?.inputs?.minimumOrderQuantity ?? undefined,
+      images: state?.inputs?.images ?? [],
+      thumbnail: state?.inputs?.thumbnail ?? undefined,
     },
   });
 
-  // const qrText = watch("meta.qrCode");
+  const [isTransitioning, startTransition] = useTransition();
 
   const onSubmit = (data: Partial<Product>) => {
     const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        value.forEach((v) =>
-          formData.append(
-            key,
-            typeof v === "string" || typeof v === "number"
-              ? String(v)
-              : String(v)
-          )
-        );
-      } else if (value !== undefined && value !== null) {
-        if (key === "price" && typeof value === "number") {
-          formData.append(key, value.toString());
-        } else if (typeof value === "string" || typeof value === "number") {
-          formData.append(key, String(value));
-        } else {
-          formData.append(key, String(value));
-        }
-      }
-    });
-    formAction(formData);
-  };
 
-  if (isPending) return <p>Loading...</p>;
+    formData.append("title", data.title || "");
+    formData.append("description", data.description || "");
+    formData.append("category", data.category || "");
+    formData.append("price", (data.price || 0).toString());
+    formData.append(
+      "discountPercentage",
+      (data.discountPercentage || 0).toString()
+    );
+    formData.append("stock", (data.stock || 0).toString());
+
+    if (data.tags && data.tags.length > 0) {
+      data.tags.forEach((tag) => formData.append("tags", tag));
+    }
+
+    formData.append("brand", data.brand || "");
+    formData.append("weight", (data.weight || 0).toString());
+
+    formData.append(
+      "dimensions.width",
+      (data.dimensions?.width || 0).toString()
+    );
+    formData.append(
+      "dimensions.height",
+      (data.dimensions?.height || 0).toString()
+    );
+    formData.append(
+      "dimensions.depth",
+      (data.dimensions?.depth || 0).toString()
+    );
+
+    formData.append("warrantyInformation", data.warrantyInformation || "");
+    formData.append("shippingInformation", data.shippingInformation || "");
+    formData.append("availabilityStatus", data.availabilityStatus || "");
+    formData.append("returnPolicy", data.returnPolicy || "");
+    formData.append(
+      "minimumOrderQuantity",
+      (data.minimumOrderQuantity || 0).toString()
+    );
+
+    if (data.images && data.images.length > 0) {
+      data.images.forEach((image, index) =>
+        formData.append(`images[${index}]`, image)
+      );
+      formData.append("thumbnail", data.images[0]);
+    } else {
+      formData.append("thumbnail", "");
+    }
+
+    startTransition(() => {
+      formAction(formData);
+    });
+  };
 
   return (
     <main className="max-w-sm md:max-w-md lg:max-w-3xl mx-auto my-8 p-8 rounded-2xl shadow-lg border bg-slate-50 mb-20">
@@ -257,11 +301,9 @@ export default function NewProductForm() {
         <SelectField
           label="Availability Status"
           id="availabilityStatus"
-          options={allAvailabilityStatuses.map((statusKey) => ({
-            value:
-              AvailabilityStatus[statusKey as keyof typeof AvailabilityStatus],
-            label:
-              AvailabilityStatus[statusKey as keyof typeof AvailabilityStatus],
+          options={allAvailabilityStatuses.map((status) => ({
+            value: status,
+            label: status,
           }))}
           value={watch("availabilityStatus") ?? ""}
           onChange={(val) =>
@@ -272,16 +314,16 @@ export default function NewProductForm() {
         <input
           type="hidden"
           {...register("availabilityStatus", {
-            required: "Availability status is required",
+            required: "Availability Status is required",
           })}
         />
 
         <SelectField
           label="Return Policy"
           id="returnPolicy"
-          options={allReturnPolicies.map((policyKey) => ({
-            value: ReturnPolicy[policyKey as keyof typeof ReturnPolicy],
-            label: ReturnPolicy[policyKey as keyof typeof ReturnPolicy],
+          options={allReturnPolicies.map((policy) => ({
+            value: policy,
+            label: policy,
           }))}
           value={watch("returnPolicy") ?? ""}
           onChange={(val) => setValue("returnPolicy", val as ReturnPolicy)}
@@ -290,7 +332,7 @@ export default function NewProductForm() {
         <input
           type="hidden"
           {...register("returnPolicy", {
-            required: "Return policy is required",
+            required: "Return Policy is required",
           })}
         />
 
@@ -300,31 +342,15 @@ export default function NewProductForm() {
           type="number"
           placeholder="e.g., 1"
           register={register("minimumOrderQuantity", {
-            required: "Minimum order quantity is required",
-            min: 1,
+            required: "Minimum Order Quantity is required",
+            min: {
+              value: 1,
+              message: "Minimum order quantity must be at least 1",
+            },
           })}
           error={errors.minimumOrderQuantity}
         />
 
-        <InputField
-          label="Barcode"
-          id="meta.barcode"
-          placeholder="Enter barcode"
-          register={register("meta.barcode", {
-            required: "Barcode is required",
-            min: 1,
-          })}
-          error={errors.meta?.barcode}
-        />
-
-        {/* {product?.meta?.qrCode && (
-          <div className="my-4 text-center">
-            <p className="mb-2 font-semibold text-slate-700">
-              QR Code for product page:
-            </p>
-            <QRCodeSVG value={product.meta.qrCode} size={128} />
-          </div>
-        )} */}
         <Controller
           name="images"
           control={control}
@@ -337,6 +363,7 @@ export default function NewProductForm() {
               <ImageUploadField
                 value={field.value || []}
                 onChange={field.onChange}
+                hintText="Upload product images. JPEG, PNG, or WEBP files are supported."
               />
               {fieldState.error && (
                 <p className="text-red-500 text-sm mt-1">
@@ -347,12 +374,21 @@ export default function NewProductForm() {
           )}
         />
 
-        <div className="flex gap-2 flex-col lg:flex-row">
-          <Button type="button" onClick={() => router.back()}>
-            Back to Dashboard
-          </Button>
-
-          <Button type="submit">Create Product</Button>
+        <div className="flex justify-end space-x-4 mt-6">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 font-semibold bg-white hover:bg-gray-50 transition"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isTransitioning}
+            className="px-6 py-3 rounded-lg bg-sky-950 text-white font-semibold hover:bg-sky-800 transition disabled:opacity-50"
+          >
+            {isTransitioning ? "Saving..." : "Save Product"}
+          </button>
         </div>
       </form>
     </main>

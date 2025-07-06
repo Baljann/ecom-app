@@ -1,21 +1,31 @@
+import { z } from "zod";
+import { collections, db } from "@/utils/firebase";
+import {
+  collection,
+  addDoc,
+  setDoc,
+  doc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { NewProductFormState } from "@/app/admin/products/new/page";
 import {
   Category,
   AvailabilityStatus,
   ReturnPolicy,
   Tag,
+  Dimensions,
+  Meta,
 } from "@/types/product";
-import { z } from "zod";
 import qrcode from "qrcode";
-import { db } from "@/utils/firebase";
-import { collection, addDoc, setDoc } from "firebase/firestore";
 
-const newProductSchema = z.object({
+const productSchema = z.object({
   title: z.string().min(3).max(100),
   description: z.string().min(50).max(500),
   category: z.nativeEnum(Category),
   price: z.coerce.number().min(0.01, "Price must be greater than 0"),
-  discountPercentage: z.coerce.number().min(0.01, "Discount must be positive"),
+  discountPercentage: z.coerce.number().min(0).max(100).optional(),
   stock: z.coerce.number().min(0, "Stock must be 0 or more"),
   tags: z.array(z.nativeEnum(Tag)).optional(),
   brand: z.string().min(2).max(50),
@@ -30,12 +40,10 @@ const newProductSchema = z.object({
   availabilityStatus: z.nativeEnum(AvailabilityStatus),
   returnPolicy: z.nativeEnum(ReturnPolicy),
   minimumOrderQuantity: z.coerce.number().min(1, "Minimum order is 1"),
-  meta: z
-    .object({
-      barcode: z.string().optional(),
-      qrCode: z.string().optional(),
-    })
-    .optional(),
+  imageUrl: z
+    .string()
+    .url("Must be a valid URL")
+    .min(1, "Image URL is required"),
 });
 
 export async function AddNewProductAction(
@@ -47,74 +55,252 @@ export async function AddNewProductAction(
     description: formData.get("description") as string,
     category: formData.get("category") as string,
     price: formData.get("price") as string,
+    discountPercentage: formData.get("discountPercentage") as string,
+    stock: formData.get("stock") as string,
+    tags: formData.getAll("tags") as string[],
+    brand: formData.get("brand") as string,
+    weight: formData.get("weight") as string,
+    dimensions: {
+      width: formData.get("dimensions.width") as string,
+      height: formData.get("dimensions.height") as string,
+      depth: formData.get("dimensions.depth") as string,
+    },
+    warrantyInformation: formData.get("warrantyInformation") as string,
+    shippingInformation: formData.get("shippingInformation") as string,
     availabilityStatus: formData.get("availabilityStatus") as string,
     returnPolicy: formData.get("returnPolicy") as string,
-    tags: formData.getAll("tags") as string[],
+    minimumOrderQuantity: formData.get("minimumOrderQuantity") as string,
+    imageUrl: formData.get("imageUrl") as string,
   };
 
-  const result = newProductSchema.safeParse(rawData);
+  const result = productSchema.safeParse(rawData);
 
   if (!result.success) {
-    console.log(result);
+    console.error("Failed parsing form data when adding a new product", result);
     return {
       success: false,
       message: "Please correct the form input",
       inputs: {
-        ...rawData,
-        category: rawData.category as Category | undefined,
-        price: rawData.price ? parseFloat(rawData.price) : undefined,
-        availabilityStatus: rawData.availabilityStatus as
-          | AvailabilityStatus
-          | undefined,
-        returnPolicy: rawData.returnPolicy as ReturnPolicy | undefined,
-        tags: rawData.tags as Tag[] | undefined,
+        title: rawData.title,
+        description: rawData.description,
+        category: rawData.category as Category,
+        price: rawData.price ? parseFloat(rawData.price) : 0,
+        discountPercentage: rawData.discountPercentage
+          ? parseFloat(rawData.discountPercentage)
+          : undefined,
+        stock: rawData.stock ? parseFloat(rawData.stock) : 0,
+        tags: (rawData.tags as Tag[]) || [],
+        brand: rawData.brand || "",
+        weight: rawData.weight ? parseFloat(rawData.weight) : 0,
+        dimensions: {
+          width: rawData.dimensions.width
+            ? parseFloat(rawData.dimensions.width)
+            : 0,
+          height: rawData.dimensions.height
+            ? parseFloat(rawData.dimensions.height)
+            : 0,
+          depth: rawData.dimensions.depth
+            ? parseFloat(rawData.dimensions.depth)
+            : 0,
+        },
+        warrantyInformation: rawData.warrantyInformation || "",
+        shippingInformation: rawData.shippingInformation || "",
+        availabilityStatus:
+          (rawData.availabilityStatus as AvailabilityStatus) ||
+          AvailabilityStatus.OUT_OF_STOCK,
+        returnPolicy:
+          (rawData.returnPolicy as ReturnPolicy) || ReturnPolicy.NO_RETURN,
+        minimumOrderQuantity: rawData.minimumOrderQuantity
+          ? parseFloat(rawData.minimumOrderQuantity)
+          : 0,
+        images: rawData.imageUrl ? [rawData.imageUrl] : [],
+        thumbnail: rawData.imageUrl || "",
+        meta: {
+          createdAt: "",
+          updatedAt: "",
+          barcode: "",
+          qrCode: "",
+        },
+        id: undefined,
       },
       errors: result.error.flatten().fieldErrors,
     };
-  } else {
-    console.log(result);
+  }
 
-    try {
-      const docRef = await addDoc(collection(db, "products"), {
-        ...result.data,
-      });
+  const id = Date.now().toString();
+  const dateNow = Date.now();
 
-      const productId = docRef.id;
-      const productPageUrl = `${
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-      }/products/${productId}`;
+  try {
+    const productsRef = collection(db, collections.products);
+    const q = query(productsRef, where("title", "==", result.data.title));
+    const querySnapshot = await getDocs(q);
 
-      let qrCodeDataUrl: string | undefined;
-      try {
-        qrCodeDataUrl = await qrcode.toDataURL(productPageUrl);
-      } catch (err) {
-        console.error("Failed to generate QR code:", err);
-      }
-
-      await setDoc(
-        docRef,
-        {
-          ...result.data,
-          meta: {
-            ...result.data.meta,
-            qrCode: qrCodeDataUrl,
-          },
-        },
-        { merge: true }
-      );
-
-      console.log("Document written with ID: ", productId);
-
-      return {
-        success: true,
-        message: "The product is created successfully",
-      };
-    } catch (e) {
-      console.error("Error adding document: ", e);
+    if (!querySnapshot.empty) {
       return {
         success: false,
-        message: "Failed to add product",
+        message: "Product with this title already exists.",
+        inputs: {
+          title: rawData.title,
+          description: rawData.description,
+          category: rawData.category as Category,
+          price: rawData.price ? parseFloat(rawData.price) : 0,
+          discountPercentage: rawData.discountPercentage
+            ? parseFloat(rawData.discountPercentage)
+            : undefined,
+          stock: rawData.stock ? parseFloat(rawData.stock) : 0,
+          tags: (rawData.tags as Tag[]) || [],
+          brand: rawData.brand || "",
+          weight: rawData.weight ? parseFloat(rawData.weight) : 0,
+          dimensions: {
+            width: rawData.dimensions.width
+              ? parseFloat(rawData.dimensions.width)
+              : 0,
+            height: rawData.dimensions.height
+              ? parseFloat(rawData.dimensions.height)
+              : 0,
+            depth: rawData.dimensions.depth
+              ? parseFloat(rawData.dimensions.depth)
+              : 0,
+          },
+          warrantyInformation: rawData.warrantyInformation || "",
+          shippingInformation: rawData.shippingInformation || "",
+          availabilityStatus:
+            (rawData.availabilityStatus as AvailabilityStatus) ||
+            AvailabilityStatus.OUT_OF_STOCK,
+          returnPolicy:
+            (rawData.returnPolicy as ReturnPolicy) || ReturnPolicy.NO_RETURN,
+          minimumOrderQuantity: rawData.minimumOrderQuantity
+            ? parseFloat(rawData.minimumOrderQuantity)
+            : 0,
+          images: rawData.imageUrl ? [rawData.imageUrl] : [],
+          thumbnail: rawData.imageUrl || "",
+          meta: {
+            createdAt: "",
+            updatedAt: "",
+            barcode: "",
+            qrCode: "",
+          },
+          id: undefined,
+        },
+        errors: { title: ["A product with this title already exists."] },
       };
     }
+
+    const productPageUrl = `${
+      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+    }/products/${id}`;
+    let qrCodeDataUrl: string = "";
+    try {
+      qrCodeDataUrl = await qrcode.toDataURL(productPageUrl);
+    } catch (err) {
+      console.error("Failed to generate QR code:", err);
+    }
+
+    await setDoc(doc(db, collections.products, id), {
+      title: result.data.title,
+      description: result.data.description,
+      category: result.data.category,
+      price: result.data.price,
+      discountPercentage: result.data.discountPercentage,
+      stock: result.data.stock,
+      tags: result.data.tags || [],
+      brand: result.data.brand,
+      weight: result.data.weight,
+      dimensions: result.data.dimensions,
+      warrantyInformation: result.data.warrantyInformation,
+      shippingInformation: result.data.shippingInformation,
+      availabilityStatus: result.data.availabilityStatus,
+      returnPolicy: result.data.returnPolicy,
+      minimumOrderQuantity: result.data.minimumOrderQuantity,
+      images: [result.data.imageUrl],
+      thumbnail: result.data.imageUrl,
+      meta: {
+        createdAt: dateNow.toString(),
+        updatedAt: dateNow.toString(),
+        barcode: "",
+        qrCode: qrCodeDataUrl,
+      },
+      id: id,
+    });
+
+    return {
+      success: true,
+      message: "The product is created successfully",
+      data: {
+        id: parseInt(id),
+        title: result.data.title,
+        description: result.data.description,
+        category: result.data.category,
+        price: result.data.price,
+        discountPercentage: result.data.discountPercentage,
+        stock: result.data.stock,
+        tags: result.data.tags || [],
+        brand: result.data.brand,
+        weight: result.data.weight,
+        dimensions: result.data.dimensions,
+        warrantyInformation: result.data.warrantyInformation,
+        shippingInformation: result.data.shippingInformation,
+        availabilityStatus: result.data.availabilityStatus,
+        returnPolicy: result.data.returnPolicy,
+        minimumOrderQuantity: result.data.minimumOrderQuantity,
+        images: [result.data.imageUrl],
+        thumbnail: result.data.imageUrl,
+        meta: {
+          createdAt: dateNow.toString(),
+          updatedAt: dateNow.toString(),
+          barcode: "",
+          qrCode: qrCodeDataUrl,
+        },
+      },
+    };
+  } catch (err) {
+    console.error("Error adding a new product to Firebase", err);
+    return {
+      success: false,
+      message: "Failed creating a new product in the database",
+      inputs: {
+        title: rawData.title,
+        description: rawData.description,
+        category: rawData.category as Category,
+        price: rawData.price ? parseFloat(rawData.price) : 0,
+        discountPercentage: rawData.discountPercentage
+          ? parseFloat(rawData.discountPercentage)
+          : undefined,
+        stock: rawData.stock ? parseFloat(rawData.stock) : 0,
+        tags: (rawData.tags as Tag[]) || [],
+        brand: rawData.brand || "",
+        weight: rawData.weight ? parseFloat(rawData.weight) : 0,
+        dimensions: {
+          width: rawData.dimensions.width
+            ? parseFloat(rawData.dimensions.width)
+            : 0,
+          height: rawData.dimensions.height
+            ? parseFloat(rawData.dimensions.height)
+            : 0,
+          depth: rawData.dimensions.depth
+            ? parseFloat(rawData.dimensions.depth)
+            : 0,
+        },
+        warrantyInformation: rawData.warrantyInformation || "",
+        shippingInformation: rawData.shippingInformation || "",
+        availabilityStatus:
+          (rawData.availabilityStatus as AvailabilityStatus) ||
+          AvailabilityStatus.OUT_OF_STOCK,
+        returnPolicy:
+          (rawData.returnPolicy as ReturnPolicy) || ReturnPolicy.NO_RETURN,
+        minimumOrderQuantity: rawData.minimumOrderQuantity
+          ? parseFloat(rawData.minimumOrderQuantity)
+          : 0,
+        images: rawData.imageUrl ? [rawData.imageUrl] : [],
+        thumbnail: rawData.imageUrl || "",
+        meta: {
+          createdAt: "",
+          updatedAt: "",
+          barcode: "",
+          qrCode: "",
+        },
+        id: undefined,
+      },
+    };
   }
 }

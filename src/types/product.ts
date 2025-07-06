@@ -5,17 +5,17 @@ export interface Product {
   category: Category;
   price: number;
   discountPercentage?: number;
-  rating?: number; //no need to add to schema
+  // rating?: number; //no need to add to schema
   stock: number;
   tags?: Tag[];
   brand: string;
-  sku: string;
+  //sku: string;  no need to add to schema                          
   weight: number;
   dimensions: Dimensions;
   warrantyInformation: string;
   shippingInformation: string;
   availabilityStatus: AvailabilityStatus;
-  reviews?: Review[];  //no need to add to schema
+  // reviews?: Review[];  //no need to add to schema
   returnPolicy: ReturnPolicy;
   minimumOrderQuantity: number;
   meta: Meta;

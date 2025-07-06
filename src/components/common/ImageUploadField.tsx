@@ -46,7 +46,7 @@ export default function ImageUploadField({
         if (res.ok) {
           data = await res.json();
         }
-      } catch (err) {
+      } catch (_err) {
         data = null;
       }
       if (data && data.url) {
