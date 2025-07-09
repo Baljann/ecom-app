@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 enum Page {
   home = "Home",
@@ -18,6 +19,7 @@ interface NavItemProps {
 }
 
 export default function NavbarLinks({ onLinkClick }: NavbarLinksProps) {
+  const currentPath = usePathname();
   const navItems: NavItemProps[] = [
     {
       key: "home",
@@ -40,7 +42,14 @@ export default function NavbarLinks({ onLinkClick }: NavbarLinksProps) {
   return (
     <>
       {navItems.map((item) => (
-        <Link key={item.key} href={item.href} onClick={onLinkClick}>
+        <Link
+          key={item.key}
+          href={item.href}
+          onClick={onLinkClick}
+          className={`font-bold ${
+            currentPath === item.href ? "text-yellow-600" : ""
+          }`}
+        >
           {" "}
           {item.text}{" "}
         </Link>
