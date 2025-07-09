@@ -27,10 +27,10 @@ export default function MobileTabBar() {
         >
           <tab.icon
             className={`h-6 w-6 ${
-              pathname === "/" ? "text-blue-600" : "text-gray-500"
+              pathname === "/" ? "text-blue-600" : "text-sky-950"
             }`}
           />
-          <span className="text-xs">{tab.label}</span>
+          <span className="text-xs text-sky-950">{tab.label}</span>
         </Link>
       ))}
     </nav>
