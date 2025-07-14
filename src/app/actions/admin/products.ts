@@ -84,7 +84,7 @@ export async function AddNewProductAction(
         title: rawData.title,
         description: rawData.description,
         category: rawData.category as Category,
-        price: rawData.price ? parseFloat(rawData.price) : 0,
+        price: rawData.price ? parseFloat(rawData.price)  : 0,
         discountPercentage: rawData.discountPercentage
           ? parseFloat(rawData.discountPercentage)
           : undefined,

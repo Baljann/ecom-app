@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 
-const acceptedFileTypes = ["image/jpeg", "image/png", "image/webp"];
+const acceptedFileTypes = ["image/jpeg", "image/jpg", "image/webp"];
 
 interface ImageUploadFieldProps {
   value: string[];
@@ -12,7 +12,7 @@ interface ImageUploadFieldProps {
 export default function ImageUploadField({
   value,
   onChange,
-  hintText = "JPEG, PNG, or WEBP files are supported.",
+  hintText = "JPEG, JPG, or WEBP files are supported.",
 }: ImageUploadFieldProps) {
   const [previewUrls, setPreviewUrls] = useState<string[]>(value || []);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -21,40 +21,38 @@ export default function ImageUploadField({
     const files = e.target.files;
     if (!files) return;
 
-    const urls: string[] = [];
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (!acceptedFileTypes.includes(file.type)) {
-        alert("Only JPEG, PNG, or WEBP files can be uploaded.");
-        continue;
-      }
-
-      // Показываем локальное превью
-      const localUrl = URL.createObjectURL(file);
-      urls.push(localUrl);
-
-      // Загружаем на сервер
-      const formData = new FormData();
-      formData.append("file", file);
-
-      let data = null;
-      try {
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        if (res.ok) {
-          data = await res.json();
+    const filesArray = Array.from(files);
+    const newUrls = await Promise.all(
+      filesArray.map(async (file) => {
+        if (!acceptedFileTypes.includes(file.type)) {
+          alert("Only JPEG, JPG, or WEBP files can be uploaded.");
+          return null; // Return null for invalid file types
         }
-      } catch (_err) {
-        data = null;
-      }
-      if (data && data.url) {
-        urls[urls.length - 1] = data.url; // заменяем локальное превью на ссылку с сервера
-      }
-    }
 
-    const allUrls = [...previewUrls, ...urls];
+        const localUrl = URL.createObjectURL(file);
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        let data = null;
+        try {
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+          if (res.ok) {
+            data = await res.json();
+          }
+        } catch (_err) {
+          data = null;
+        }
+
+        return data && data.url ? data.url : localUrl;
+      })
+    );
+
+    const filteredUrls = newUrls.filter((url) => url !== null) as string[];
+    const allUrls = [...previewUrls, ...filteredUrls];
     setPreviewUrls(allUrls);
     onChange(allUrls);
   };

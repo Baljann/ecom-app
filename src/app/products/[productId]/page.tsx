@@ -1,11 +1,13 @@
 import ProductClient from "./ProductClient";
 
+type ProductPageProps = {
+  params: Promise<{ productId: string }>
+};
+
 export default async function ProductPage({
   params,
-}: {
-  params: { productId: string };
-}) {
-  const { productId } = params;
+}: ProductPageProps) {
+  const { productId } = await params;
   console.log(productId);
   const res = await fetch(`https://dummyjson.com/products/${productId}`);
   if (!res.ok) {
