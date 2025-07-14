@@ -41,7 +41,7 @@ export interface NewProductFormState {
 
 export default function NewProductForm() {
   const router = useRouter();
-  const [state, formAction, isPending] = useActionState<
+  const [state, formAction] = useActionState<
     NewProductFormState,
     FormData
   >(AddNewProductAction, initialState);
@@ -375,20 +375,20 @@ export default function NewProductForm() {
         />
 
         <div className="flex justify-end space-x-4 mt-6">
-          <button
+          <Button
             type="button"
             onClick={() => router.back()}
             className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 font-semibold bg-white hover:bg-gray-50 transition"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={isTransitioning}
             className="px-6 py-3 rounded-lg bg-sky-950 text-white font-semibold hover:bg-sky-800 transition disabled:opacity-50"
           >
             {isTransitioning ? "Saving..." : "Save Product"}
-          </button>
+          </Button>
         </div>
       </form>
     </main>

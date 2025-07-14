@@ -2,7 +2,7 @@ import { z } from "zod";
 import { collections, db } from "@/utils/firebase";
 import {
   collection,
-  addDoc,
+  // addDoc,
   setDoc,
   doc,
   getDocs,
@@ -16,7 +16,7 @@ import {
   ReturnPolicy,
   Tag,
   Dimensions,
-  Meta,
+  // Meta,
 } from "@/types/product";
 import qrcode from "qrcode";
 
@@ -34,7 +34,7 @@ const productSchema = z.object({
     width: z.coerce.number().min(0.01, "Width must be positive"),
     height: z.coerce.number().min(0.01, "Height must be positive"),
     depth: z.coerce.number().min(0.01, "Depth must be positive"),
-  }),
+  }) satisfies z.ZodType<Dimensions>,
   warrantyInformation: z.string().min(2).max(100),
   shippingInformation: z.string().min(2).max(100),
   availabilityStatus: z.nativeEnum(AvailabilityStatus),
@@ -84,7 +84,7 @@ export async function AddNewProductAction(
         title: rawData.title,
         description: rawData.description,
         category: rawData.category as Category,
-        price: rawData.price ? parseFloat(rawData.price)  : 0,
+        price: rawData.price ? parseFloat(rawData.price) : 0,
         discountPercentage: rawData.discountPercentage
           ? parseFloat(rawData.discountPercentage)
           : undefined,
