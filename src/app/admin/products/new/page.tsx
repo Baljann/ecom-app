@@ -21,6 +21,7 @@ import SelectField from "@/components/common/SelectField";
 import TagsCheckboxGroup from "@/components/common/TagsCheckboxGroup";
 import Button from "@/components/common/Button";
 import ImageUploadField from "@/components/common/ImageUploadField";
+import Success from "./Success";
 
 const initialState = {
   success: false,
@@ -97,6 +98,11 @@ export default function NewProductForm() {
   };
 
   if (isPending) return <p>Loading...</p>;
+
+  if (state.success && state.inputs) {
+    return <Success product={state.inputs} onGoBack={() => router.push("/admin/products/new")} />;
+  }
+
 
   return (
     <main className="max-w-sm md:max-w-md lg:max-w-3xl mx-auto my-8 p-8 rounded-2xl shadow-lg border bg-slate-50 mb-20">
