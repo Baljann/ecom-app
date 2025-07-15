@@ -28,16 +28,16 @@ export default function RootLayout({
 }>) {
   return (
     <CartProvider>
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Header />
-        {children}
-        <Footer />
-        <MobileTabBar />
-      </body>
-    </html>
+      <html lang="en">
+        <body
+          className={`${geistSans.className} ${geistMono.className} antialiased`}
+        >
+          <Header />
+          {children}
+          <Footer />
+          <MobileTabBar />
+        </body>
+      </html>
     </CartProvider>
   );
 }

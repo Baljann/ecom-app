@@ -9,18 +9,17 @@ export interface Product {
   stock: number;
   tags?: Tag[];
   brand: string;
-  //sku: string;  no need to add to schema                          
+  //sku: string;  no need to add to schema
   weight: number;
   dimensions: Dimensions;
   warrantyInformation: string;
   shippingInformation: string;
-  availabilityStatus: AvailabilityStatus;
+  availabilityStatus: string;
   // reviews?: Review[];  //no need to add to schema
-  returnPolicy: ReturnPolicy;
+  returnPolicy: string;
   minimumOrderQuantity: number;
   meta: Meta;
   images: string[];
-  thumbnail: string;
 }
 
 export enum Category {
@@ -86,7 +85,5 @@ export interface Meta {
   createdAt: string;
   updatedAt: string;
   barcode: string;
-  qrCode: string;
+
 }
-
-
