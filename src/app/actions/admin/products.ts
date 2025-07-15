@@ -1,4 +1,3 @@
-import { productSchema } from "@/validations/productSchema";
 import { collections, db } from "@/utils/firebase";
 import {
   collection,
@@ -8,7 +7,14 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import { productSchema } from "@/validations/productSchema";
 import { NewProductFormState } from "@/app/admin/products/new/page";
+import {
+  Category,
+  AvailabilityStatus,
+  ReturnPolicy,
+  Tag,
+} from "@/types/product";
 
 export async function AddNewProductAction(
   currentState: NewProductFormState,
@@ -54,9 +60,29 @@ export async function AddNewProductAction(
       success: false,
       message: "Please correct the form input",
       inputs: {
-        ...result.data,
-        meta: rawData.meta,
+        title: rawData.title,
+        description: rawData.description,
+        category: rawData.category as Category,
+        price: parseFloat(rawData.price),
+        discountPercentage: rawData.discountPercentage
+          ? parseFloat(rawData.discountPercentage)
+          : undefined,
+        stock: parseInt(rawData.stock),
+        tags: (rawData.tags as Tag[]) ?? [],
+        brand: rawData.brand,
+        weight: parseFloat(rawData.weight),
+        dimensions: {
+          width: parseFloat(rawData.dimensions.width),
+          height: parseFloat(rawData.dimensions.height),
+          depth: parseFloat(rawData.dimensions.depth),
+        },
+        warrantyInformation: rawData.warrantyInformation,
+        shippingInformation: rawData.shippingInformation,
+        availabilityStatus: rawData.availabilityStatus as AvailabilityStatus,
+        returnPolicy: rawData.returnPolicy as ReturnPolicy,
+        minimumOrderQuantity: parseInt(rawData.minimumOrderQuantity),
         images: rawData.images,
+        meta: rawData.meta,
         id: undefined,
       },
       errors,
@@ -88,10 +114,6 @@ export async function AddNewProductAction(
         errors: { title: ["A product with this title already exists."] },
       };
     }
-
-    const productPageUrl = `${
-      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-    }/products/${id}`;
 
     await setDoc(doc(db, collections.products, id), {
       ...result.data,

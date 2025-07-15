@@ -39,7 +39,6 @@ export interface NewProductFormState {
 
 export default function NewProductForm() {
   const router = useRouter();
-  const [imageUrl, setImageUrl] = useState<string[]>([]);
   const [state, formAction, isPending] = useActionState<
     NewProductFormState,
     FormData
@@ -92,11 +91,6 @@ export default function NewProductForm() {
       }
     });
 
-    if (imageUrl && imageUrl.length > 0) {
-      imageUrl.forEach((url) => {
-        formData.append("images", url);
-      });
-    }
     startTransition(() => {
       formAction(formData);
     });
