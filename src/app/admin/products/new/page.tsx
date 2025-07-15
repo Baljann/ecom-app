@@ -1,9 +1,9 @@
 "use client";
 
 import { FieldError, useForm, Controller } from "react-hook-form";
-import { useActionState } from "react";
+import { useActionState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { AddNewProductAction } from "@/app/actions/admin/products";
 import {
   Product,
   allCategories,
@@ -15,7 +15,7 @@ import {
   Tag,
   Category,
 } from "@/types/product";
-import { AddNewProductAction } from "@/app/actions/admin/products";
+
 import InputField from "@/components/common/InputField";
 import SelectField from "@/components/common/SelectField";
 import TagsCheckboxGroup from "@/components/common/TagsCheckboxGroup";
