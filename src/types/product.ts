@@ -1,5 +1,5 @@
 export interface Product {
-  id: number;
+  id: string;
   title: string;
   description: string;
   category: Category;
@@ -85,5 +85,4 @@ export interface Meta {
   createdAt: string;
   updatedAt: string;
   barcode: string;
-
 }

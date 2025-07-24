@@ -100,12 +100,16 @@ export default function NewProductForm() {
   if (isPending) return <p>Loading...</p>;
 
   if (state.success && state.inputs) {
-    return <Success product={state.inputs} onGoBack={() => router.push("/admin/products/new")} />;
+    return (
+      <Success
+        product={state.inputs}
+        onGoBack={() => router.push("/admin/products/new")}
+      />
+    );
   }
 
-
   return (
-    <main className="max-w-sm md:max-w-md lg:max-w-3xl mx-auto my-8 p-8 rounded-2xl shadow-lg border bg-slate-50 mb-20">
+    <main className="max-w-sm md:max-w-md lg:max-w-4xl mx-auto my-8 p-8 rounded-2xl shadow-lg border bg-slate-50 mb-20">
       <h1 className="my-12 text-2xl font-bold text-center text-sky-950">
         Add a New Product
       </h1>
@@ -220,7 +224,7 @@ export default function NewProductForm() {
           step="any"
         />
 
-        <div className="flex gap-2 flex-col lg:flex-row">
+        <div className="grid gap-2 grid-cols-1 lg:grid-cols-3">
           <InputField
             label="Width (sm)"
             id="dimensions.width"
