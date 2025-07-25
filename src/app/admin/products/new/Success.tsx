@@ -5,7 +5,6 @@ import {
   Category,
   AvailabilityStatus,
   ReturnPolicy,
-  Tag,
 } from "@/types/product";
 import Image from "next/image";
 
