@@ -13,7 +13,6 @@ import {
   Category,
   AvailabilityStatus,
   ReturnPolicy,
-  Tag,
 } from "@/types/product";
 
 export async function AddNewProductAction(
@@ -68,7 +67,6 @@ export async function AddNewProductAction(
           ? parseFloat(rawData.discountPercentage)
           : undefined,
         stock: parseInt(rawData.stock),
-        tags: (rawData.tags as Tag[]) ?? [],
         brand: rawData.brand,
         weight: parseFloat(rawData.weight),
         dimensions: {
@@ -135,7 +133,6 @@ export async function AddNewProductAction(
           updatedAt: dateNow.toString(),
           barcode: "",
         },
-        id: parseInt(id),
       },
     };
   } catch (err) {

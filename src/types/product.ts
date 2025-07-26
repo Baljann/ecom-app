@@ -5,17 +5,19 @@ export interface Product {
   category: Category;
   price: number;
   discountPercentage?: number;
-  // rating?: number; //no need to add to schema
   stock: number;
-  tags?: Tag[];
   brand: string;
-  //sku: string;  no need to add to schema
   weight: number;
   dimensions: Dimensions;
+
+  material?: string;
+  color?: string;
+  packQuantity?: number; // e.g., 10 (for 10-pack pens), 3 (for 3-pack notebooks)
+  pageCount?: number; // For notebooks (e.g., 80, 100, 120)
+
   warrantyInformation: string;
   shippingInformation: string;
   availabilityStatus: string;
-  // reviews?: Review[];  //no need to add to schema
   returnPolicy: string;
   minimumOrderQuantity: number;
   meta: Meta;
@@ -23,10 +25,11 @@ export interface Product {
 }
 
 export enum Category {
-  fragrances = "fragrances",
-  beauty = "beauty",
-  groceries = "groceries",
-  furniture = "furniture",
+  PENS = "Pens",
+  NOTEBOOKS = "Notebooks",
+  STAPLERS_STAPLES = "Staplers/Staples",
+  STICKY_NOTES = "Sticky Notes",
+  DESK_ORGANIZERS = "Desk Organizers",
 }
 
 export const allCategories = Object.keys(Category);
@@ -49,36 +52,10 @@ export enum ReturnPolicy {
 
 export const allReturnPolicies = Object.keys(ReturnPolicy);
 
-export enum Tag {
-  FRAGRANCES = "fragrances",
-  BEAUTY = "beauty",
-  FURNITURE = "furniture",
-  FRUITS = "fruits",
-  MEAT = "meat",
-  PET_SUPPLIES = "pet_supplies",
-  VEGETABLES = "vegetables",
-  DESSERTS = "desserts",
-  DAIRY = "dairy",
-  COOKING_ESSENTIALS = "cooking_essentials",
-  BEVERAGES = "beverages",
-  CONDIMENTS = "condiments",
-  SEAFOOD = "seafood",
-}
-
-export const allTags = Object.keys(Tag);
-
 export interface Dimensions {
   width: number;
   height: number;
   depth: number;
-}
-
-export interface Review {
-  rating: number;
-  comment: string;
-  date: string;
-  reviewerName: string;
-  reviewerEmail: string;
 }
 
 export interface Meta {

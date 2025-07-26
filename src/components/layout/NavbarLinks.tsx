@@ -47,7 +47,9 @@ export default function NavbarLinks({ onLinkClick }: NavbarLinksProps) {
           href={item.href}
           onClick={onLinkClick}
           className={`font-bold ${
-            currentPath === item.href ? "text-yellow-600" : ""
+            currentPath === item.href
+              ? "text-cyan-600"
+              : "text-cyan-800 hover:text-cyan-600"
           }`}
         >
           {" "}

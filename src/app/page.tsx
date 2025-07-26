@@ -23,7 +23,7 @@ export default async function Home() {
   const products = await getProducts();
 
   return (
-    <main className="py-4 pb-20">
+    <main className="py-4 pb-20 container mx-auto p-8 min-h-screen">
       <h1 className="text-4xl font-bold text-center">All Products</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4 mx-auto px-6 py-4 items-stretch">

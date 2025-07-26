@@ -11,14 +11,11 @@ import {
   allReturnPolicies,
   AvailabilityStatus,
   ReturnPolicy,
-  allTags,
-  Tag,
   Category,
 } from "@/types/product";
 
 import InputField from "@/components/common/InputField";
 import SelectField from "@/components/common/SelectField";
-import TagsCheckboxGroup from "@/components/common/TagsCheckboxGroup";
 import Button from "@/components/common/Button";
 import ImageUploadField from "@/components/common/ImageUploadField";
 import Success from "./Success";
@@ -60,7 +57,6 @@ export default function NewProductForm() {
       price: state?.inputs?.price ?? undefined,
       availabilityStatus: state?.inputs?.availabilityStatus ?? undefined,
       returnPolicy: state?.inputs?.returnPolicy ?? undefined,
-      tags: state?.inputs?.tags,
     },
   });
 
@@ -126,17 +122,19 @@ export default function NewProductForm() {
         <InputField
           label="Description"
           id="description"
+          type="textarea"
           placeholder="e.g., Elegant wristwatch with leather strap"
           register={register("description", {
             required: "Description is required",
           })}
           error={errors.description}
+          rows={4}
         />
 
         <SelectField
           label="Category"
           id="category"
-          options={allCategories.map((category) => ({
+          options={Object.values(Category).map((category) => ({
             value: category,
             label: category,
           }))}
@@ -167,12 +165,11 @@ export default function NewProductForm() {
           label="Discount Percentage (%)"
           id="discountPercentage"
           type="number"
-          placeholder="e.g., 10"
+          placeholder="e.g., 10 (optional)"
           register={register("discountPercentage", {
-            required: "Discount percentage is required",
             min: {
-              value: 0.01,
-              message: "Discount percentage must be positive",
+              value: 0.0,
+              message: "Discount percentage cannot be negative",
             },
             valueAsNumber: true,
           })}
@@ -190,16 +187,6 @@ export default function NewProductForm() {
             valueAsNumber: true,
           })}
           error={errors.stock}
-        />
-
-        <TagsCheckboxGroup
-          label="Tags"
-          tags={allTags.map((tagKey) => ({
-            value: Tag[tagKey as keyof typeof Tag],
-            label: Tag[tagKey as keyof typeof Tag],
-          }))}
-          register={register("tags")}
-          error={errors.tags as FieldError | undefined}
         />
 
         <InputField

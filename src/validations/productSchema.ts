@@ -3,7 +3,6 @@ import {
   Category,
   AvailabilityStatus,
   ReturnPolicy,
-  Tag,
   Dimensions,
   Meta,
 } from "@/types/product";
@@ -15,7 +14,6 @@ export const productSchema = z.object({
   price: z.coerce.number().min(0.01, "Price must be greater than 0"),
   discountPercentage: z.coerce.number().min(0).max(100).optional(),
   stock: z.coerce.number().min(0, "Stock must be 0 or more"),
-  tags: z.array(z.nativeEnum(Tag)).optional(),
   brand: z.string().min(2).max(50),
   weight: z.coerce.number().min(0.01, "Weight must be positive"),
   dimensions: z.object({

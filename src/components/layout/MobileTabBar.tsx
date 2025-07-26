@@ -19,20 +19,29 @@ export default function MobileTabBar() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around items-center h-16 md:hidden z-50">
-      {tabs.map((tab) => (
-        <Link
-          key={tab.href}
-          href={tab.href}
-          className="flex flex-col items-center"
-        >
-          <tab.icon
-            className={`h-6 w-6 ${
-              pathname === "/" ? "text-blue-600" : "text-sky-950"
-            }`}
-          />
-          <span className="text-xs text-sky-950">{tab.label}</span>
-        </Link>
-      ))}
+      {tabs.map((tab) => {
+        const isActive = pathname === tab.href;
+        return (
+          <Link
+            key={tab.href}
+            href={tab.href}
+            className="flex flex-col items-center"
+          >
+            <tab.icon
+              className={`h-6 w-6 ${
+                isActive ? "text-cyan-600" : "text-cyan-800 hover:text-cyan-600"
+              }`}
+            />
+            <span
+              className={`text-xs ${
+                isActive ? "text-cyan-600" : "text-cyan-800 hover:text-cyan-600"
+              }`}
+            >
+              {tab.label}
+            </span>
+          </Link>
+        );
+      })}
     </nav>
   );
 }
