@@ -1,6 +1,6 @@
 "use client";
 
-import { FieldError, useForm, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useActionState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { AddNewProductAction } from "@/app/actions/admin/products";
@@ -109,8 +109,8 @@ export default function NewProductForm() {
   }
 
   return (
-    <main className="max-w-sm md:max-w-md lg:max-w-4xl mx-auto my-8 p-8 rounded-2xl shadow-lg border bg-slate-50 mb-20">
-      <h1 className="my-12 text-2xl font-bold text-center text-sky-950">
+    <main className="max-w-sm md:max-w-md lg:max-w-4xl mx-auto p-1 bg-white mb-20">
+      <h1 className="my-8 text-xl font-extrabold text-center text-cyan-700">
         Add a New Product
       </h1>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -265,6 +265,46 @@ export default function NewProductForm() {
         </div>
 
         <InputField
+          label="Material"
+          id="material"
+          type="text"
+          placeholder="e.g., leather, plastic, metal"
+          register={register("material")}
+          error={errors.material}
+        />
+
+        <InputField
+          label="Color"
+          id="color"
+          type="text"
+          placeholder="e.g., black, red, blue"
+          register={register("color")}
+          error={errors.color}
+        />
+
+        <InputField
+          label="Pack Quantity"
+          id="packQuantity"
+          type="number"
+          placeholder="e.g., 1, 3, 10"
+          register={register("packQuantity", {
+            valueAsNumber: true,
+          })}
+          error={errors.packQuantity}
+        />
+
+        <InputField
+          label="Page Count (for notebooks)"
+          id="pageCount"
+          type="number"
+          placeholder="e.g., 80, 100, 120"
+          register={register("pageCount", {
+            valueAsNumber: true,
+          })}
+          error={errors.pageCount}
+        />
+
+        <InputField
           label="Warranty Information"
           id="warrantyInformation"
           type="string"
@@ -352,7 +392,7 @@ export default function NewProductForm() {
                 onChange={field.onChange}
               />
               {fieldState.error && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-rose-600 text-sm mt-1">
                   {fieldState.error.message}
                 </p>
               )}
@@ -360,15 +400,19 @@ export default function NewProductForm() {
           )}
         />
 
-        <div className="flex gap-2 flex-col lg:flex-row">
-          <Button type="button" onClick={() => router.back()}>
+        <div className="flex gap-4 flex-col lg:flex-row mt-8">
+          <Button
+            type="button"
+            onClick={() => router.back()}
+            className="w-full justify-center py-3 px-6 border border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition"
+          >
             Back to Dashboard
           </Button>
 
           <Button
             type="submit"
             disabled={isPending || isTransitioning}
-            className="px-6 py-3 rounded-lg bg-sky-950 text-white font-semibold hover:bg-sky-800 transition disabled:opacity-50"
+            className="w-full justify-center py-3 px-6 rounded-lg bg-cyan-600 text-white font-semibold hover:bg-cyan-700 transition disabled:opacity-50"
           >
             {isPending || isTransitioning ? "Saving..." : "Create Product"}
           </Button>

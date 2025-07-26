@@ -1,5 +1,10 @@
 import { FieldError } from "react-hook-form";
-import { Listbox } from "@headlessui/react";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from "@headlessui/react";
 
 interface SelectFieldProps {
   label: string;
@@ -22,21 +27,21 @@ export default function SelectField({
 
   return (
     <div className="flex flex-col mb-4">
-      <label htmlFor={id} className="text-sky-950 font-semibold mb-2">
+      <label htmlFor={id} className="text-cyan-700 font-semibold mb-2">
         {label}
       </label>
       <Listbox value={selected.value} onChange={onChange}>
         <div className="relative">
-          <Listbox.Button className="bg-slate-300 text-sky-950 rounded-lg border border-slate-600 px-4 py-3 w-full text-left flex justify-between items-center">
+          <ListboxButton className="bg-slate-100 text-gray-800 rounded-lg border border-cyan-300 px-4 py-3 w-full text-left flex justify-between items-center focus:outline-none focus:border-cyan-500 transition">
             {value ? (
               selected.label
             ) : (
-              <span className="text-slate-400">
+              <span className="text-gray-400">
                 Select {label.toLowerCase()}
               </span>
             )}
             <svg
-              className="w-4 h-4 ml-2 text-sky-950"
+              className="w-4 h-4 ml-2 text-gray-700"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -48,25 +53,25 @@ export default function SelectField({
                 d="M19 9l-7 7-7-7"
               />
             </svg>
-          </Listbox.Button>
-          <Listbox.Options className="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg">
+          </ListboxButton>
+          <ListboxOptions className="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg">
             {options.map((opt) => (
-              <Listbox.Option
+              <ListboxOption
                 key={opt.value}
                 value={opt.value}
-                className={({ active }) =>
+                className={({ active }: { active: boolean }) =>
                   `cursor-pointer select-none px-4 py-2 ${
-                    active ? "bg-sky-100 text-sky-900" : "text-sky-950"
+                    active ? "bg-cyan-100 text-cyan-900" : "text-gray-800"
                   }`
                 }
               >
                 {opt.label}
-              </Listbox.Option>
+              </ListboxOption>
             ))}
-          </Listbox.Options>
+          </ListboxOptions>
         </div>
       </Listbox>
-      {error && <p className="text-red-400 text-sm mt-1">{error.message}</p>}
+      {error && <p className="text-rose-600 text-sm mt-1">{error.message}</p>}
     </div>
   );
 }

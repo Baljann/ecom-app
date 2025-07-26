@@ -23,6 +23,10 @@ export const productSchema = z.object({
     height: z.coerce.number().min(0.01, "Height must be positive"),
     depth: z.coerce.number().min(0.01, "Depth must be positive"),
   }) satisfies z.ZodType<Dimensions>,
+  material: z.string().min(2).max(50).optional(),
+  color: z.string().min(2).max(50).optional(),
+  packQuantity: z.coerce.number().min(1).optional(),
+  pageCount: z.coerce.number().min(1).optional(),
   warrantyInformation: z.string().min(2).max(100),
   shippingInformation: z.string().min(2).max(100),
   availabilityStatus: z.nativeEnum(AvailabilityStatus),
@@ -35,7 +39,6 @@ export const productSchema = z.object({
     createdAt: z.string(),
     updatedAt: z.string(),
     barcode: z.string(),
-  
   }) satisfies z.ZodType<Meta>,
 });
 
