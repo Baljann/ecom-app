@@ -12,13 +12,13 @@ export default function MobileTabBar() {
   const pathname = usePathname();
   const tabs = [
     { href: "/", icon: HomeIcon, label: "Home" },
-    { href: "/cart", icon: ShoppingCartIcon, label: "Cart" },
     { href: "/admin", icon: ShieldCheckIcon, label: "Admin" },
     { href: "/login", icon: UserIcon, label: "Login" },
+    { href: "/cart", icon: ShoppingCartIcon, label: "Cart" },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around items-center h-16 md:hidden z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 flex justify-around items-center h-16 md:hidden z-50">
       {tabs.map((tab) => {
         const isActive = pathname === tab.href;
         return (

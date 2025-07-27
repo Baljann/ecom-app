@@ -18,9 +18,13 @@ export default function RootLayout({
   return (
     <CartProvider>
       <html lang="en">
-        <body className="antialiased">
+        <body className="min-h-screen flex flex-col antialiased">
           <Header />
-          {children}
+          <main className="flex-1">
+            <div className="md:max-w-7xl mx-auto px-4">
+              {children}
+            </div>
+          </main>
           <Footer />
           <MobileTabBar />
         </body>

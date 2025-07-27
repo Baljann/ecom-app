@@ -1,4 +1,4 @@
-import { collections, db } from "@/utils/firebase";
+import { collections, db } from "@/lib/firebase";
 import {
   collection,
   setDoc,
@@ -9,11 +9,7 @@ import {
 } from "firebase/firestore";
 import { productSchema } from "@/validations/productSchema";
 import { NewProductFormState } from "@/app/admin/products/new/page";
-import {
-  Category,
-  AvailabilityStatus,
-  ReturnPolicy,
-} from "@/types/product";
+import { Category, AvailabilityStatus, ReturnPolicy } from "@/types/product";
 
 export async function AddNewProductAction(
   currentState: NewProductFormState,

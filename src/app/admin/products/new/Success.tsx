@@ -2,11 +2,12 @@
 
 import {
   Product,
-  Category,
   AvailabilityStatus,
-  ReturnPolicy,
+  ReturnPolicy
 } from "@/types/product";
 import Image from "next/image";
+import Button from "@/components/common/Button";
+import { useRouter } from "next/navigation";
 
 interface SuccessPageProps {
   product: Partial<Product>;
@@ -14,6 +15,8 @@ interface SuccessPageProps {
 }
 
 export default function Success({ product, onGoBack }: SuccessPageProps) {
+  const router = useRouter();
+
   return (
     <main className="max-w-sm md:max-w-md lg:max-w-3xl mx-auto my-8 p-8 rounded-2xl shadow-lg border bg-slate-50 mb-20">
       <h1 className="my-12 text-2xl font-bold text-center text-sky-950">
@@ -33,9 +36,7 @@ export default function Success({ product, onGoBack }: SuccessPageProps) {
         </p>
         <p>
           <span className="font-semibold">Category:</span>
-          {product.category
-            ? Category[product.category as keyof typeof Category]
-            : "N/A"}
+          {product.category || "N/A"}
         </p>
         <p>
           <span className="font-semibold">Price:</span>
@@ -86,13 +87,6 @@ export default function Success({ product, onGoBack }: SuccessPageProps) {
           {product.minimumOrderQuantity}
         </p>
 
-        {product.tags && product.tags.length > 0 && (
-          <p>
-            <span className="font-semibold">Tags:</span>{" "}
-            {product.tags?.join(", ")}
-          </p>
-        )}
-
         {product.images && product.images.length > 0 && (
           <div>
             <p className="font-semibold mt-4 mb-2">Product Images:</p>
@@ -113,13 +107,25 @@ export default function Success({ product, onGoBack }: SuccessPageProps) {
       </div>
 
       <div className="flex justify-center mt-8">
-        <button
+        <Button
           type="button"
-          onClick={onGoBack}
+          onClick={() => router.push("/admin/products/new")}
           className="px-6 py-3 rounded-lg bg-sky-950 text-white font-semibold hover:bg-sky-800 transition"
         >
           Create Another Product
-        </button>
+        </Button>
+        <Button
+          onClick={() =>
+            router.push(
+              `/categories/${product.category
+                ?.toLowerCase()
+                .replace(/\s+/g, "-")}`
+            )
+          }
+          className="w-full justify-center py-3 px-6 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+        >
+          View Products in {product.category}
+        </Button>
       </div>
     </main>
   );
