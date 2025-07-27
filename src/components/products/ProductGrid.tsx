@@ -6,7 +6,6 @@ interface ProductGridProps {
 }
 
 export default function ProductGrid({ products }: ProductGridProps) {
-  // Если товаров нет - показываем сообщение
   if (products.length === 0) {
     return (
       <div className="text-center py-12">
@@ -18,7 +17,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

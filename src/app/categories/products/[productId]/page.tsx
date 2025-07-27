@@ -5,61 +5,55 @@ import { getProductById } from "@/utils/products";
 export default async function ProductPage({
   params,
 }: {
-  params: { productId: string }; // ID товара из URL
+  params: Promise<{ productId: string }>;
 }) {
-  // Получаем товар из Firebase по ID
-  const product = await getProductById(params.productId);
+  const { productId } = await params;
+  const product = await getProductById(productId);
 
-  // Если товар не найден - показываем 404
   if (!product) {
     notFound();
   }
 
-  // Вычисляем цену со скидкой
   const discountedPrice = product.discountPercentage
     ? product.price * (1 - product.discountPercentage / 100)
     : product.price;
 
   return (
-    <div className="py-8">
-      {/* Адаптивная сетка: 1 колонка на мобильных, 2 на десктопе */}
+    <div className="py-8 pb-20">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Изображение товара */}
-        <div className="relative h-96">
+        <div className="relative h-100">
           <Image
             src={product.images?.[0] || "/placeholder.jpg"}
             alt={product.title}
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover rounded-lg"
           />
         </div>
 
-        {/* Информация о товаре */}
         <div>
           <h1 className="text-3xl font-bold text-gray-800 mb-4">
             {product.title}
           </h1>
           <p className="text-gray-600 mb-4">{product.description}</p>
 
-          {/* Цены */}
           <div className="flex items-center gap-2 mb-4">
             <span className="text-2xl font-bold text-cyan-600">
               ${discountedPrice.toFixed(2)}
             </span>
-            {product.discountPercentage && (
+            {(product.discountPercentage ?? 0) > 0 && (
               <span className="text-lg text-gray-500 line-through">
                 ${product.price.toFixed(2)}
               </span>
             )}
           </div>
 
-          {/* Дополнительные характеристики */}
           <div className="space-y-2 text-sm text-gray-600">
             <p>
               <strong>Brand:</strong> {product.brand}
             </p>
             <p>
-              <strong>Stock:</strong> {product.stock} units
+              <strong>Stock:</strong> {product.stock} pcs
             </p>
             {product.material && (
               <p>
@@ -101,8 +95,7 @@ export default async function ProductPage({
               <strong>Availability:</strong> {product.availabilityStatus}
             </p>
             <p>
-              <strong>Minimum Order:</strong> {product.minimumOrderQuantity}{" "}
-              units
+              <strong>Minimum Order:</strong> {product.minimumOrderQuantity} pcs
             </p>
           </div>
         </div>

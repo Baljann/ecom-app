@@ -96,12 +96,7 @@ export default function NewProductForm() {
   if (isPending) return <p>Loading...</p>;
 
   if (state.success && state.inputs) {
-    return (
-      <Success
-        product={state.inputs}
-        onGoBack={() => router.push("/admin/products/new")}
-      />
-    );
+    return <Success product={state.inputs} />;
   }
 
   return (
@@ -387,11 +382,11 @@ export default function NewProductForm() {
           )}
         />
 
-        <div className="flex gap-4 flex-col lg:flex-row mt-8">
+        <div className="flex md:gap-4 flex-col lg:flex-row mt-8">
           <Button
             type="button"
             onClick={() => router.back()}
-            className="w-full justify-center py-3 px-6 border border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition"
+            className="w-full justify-center py-3 px-6 border border-gray-300 rounded-lg text-gray-700 font-semibold transition"
           >
             Back to Dashboard
           </Button>
