@@ -93,7 +93,16 @@ export default function NewProductForm() {
     });
   };
 
-  if (isPending) return <p>Loading...</p>;
+  if (isPending) {
+    return (
+      <div className="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600"></div>
+          <p className="mt-4 text-cyan-700 font-medium">Creating product...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (state.success && state.inputs) {
     return <Success product={state.inputs} />;

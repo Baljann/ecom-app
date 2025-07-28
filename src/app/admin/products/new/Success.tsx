@@ -114,10 +114,10 @@ export default function Success({ product }: SuccessPageProps) {
       <div className="flex gap-2 md:gap-4 flex-col lg:flex-row mt-8">
         <Button
           type="button"
-          onClick={() => router.push("/admin/products/new")}
+          onClick={() => router.back()}
           className="w-full justify-center py-3 px-6 rounded-lg bg-cyan-600 text-white font-semibold hover:bg-cyan-700 transition"
         >
-          Create Another Product
+          Back to Dashboard
         </Button>
         <Button
           onClick={() =>
