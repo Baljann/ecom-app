@@ -124,7 +124,8 @@ export default function Success({ product }: SuccessPageProps) {
             router.push(
               `/categories/${product.category
                 ?.toLowerCase()
-                .replace(/\s+/g, "-")}`
+                .replace(/\s+/g, "-")
+                .replace(/\//g, "-")}`
             )
           }
           className="w-full justify-center py-3 px-6 border border-gray-300 rounded-lg text-gray-700 font-semibold  transition"

@@ -8,6 +8,7 @@ function getCategoryFromSlug(slug: string): string {
     pens: "Pens",
     notebooks: "Notebooks",
     "staplers-staples": "Staplers/Staples",
+    "staplers/staples": "Staplers/Staples",
     "sticky-notes": "Sticky Notes",
     "desk-organizers": "Desk Organizers",
   };
@@ -18,19 +19,21 @@ function getCategoryFromSlug(slug: string): string {
 export default async function CategoryPage({
   params,
 }: {
-  params: { category: string }; 
+  params: { category: string };
 }) {
   const categoryName = getCategoryFromSlug(params.category);
 
   if (!Object.values(Category).includes(categoryName as Category)) {
-    notFound(); 
+    notFound();
   }
 
   const products = await getProductsByCategory(categoryName as Category);
 
   return (
     <div className="py-8">
-      <h1 className="tracking-light text-2xl font-bold leading-tight  text-cyan-700 mb-8">{categoryName}</h1>
+      <h1 className="tracking-light text-2xl font-bold leading-tight  text-cyan-700 mb-8">
+        {categoryName}
+      </h1>
       <ProductGrid products={products} />
     </div>
   );

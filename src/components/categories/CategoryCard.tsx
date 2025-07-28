@@ -18,7 +18,10 @@ function getCategoryImage(category: Category): string {
 }
 
 export default function CategoryCard({ category }: CategoryCardProps) {
-  const categorySlug = category.toLowerCase().replace(/\s+/g, "-");
+  const categorySlug = category
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/\//g, "-");
   const imageUrl = getCategoryImage(category);
 
   return (
