@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/types/product";
@@ -35,7 +37,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <div className="p-4">
-          <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">
+          <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2 h-12 flex items-start">
             {product.title}
           </h3>
           <div className="flex items-center gap-2">

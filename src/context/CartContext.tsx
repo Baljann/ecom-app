@@ -1,14 +1,9 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-   ReactNode,
-} from "react";
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface CartItem {
-  id: number;
+  id: string;
   name: string;
   price: number;
   quantity: number;
@@ -20,7 +15,7 @@ interface CartContextType {
   cart: CartItem[];
   addToCart: (
     item: {
-      id: number;
+      id: string;
       name: string;
       price: number;
       thumbnail: string;
@@ -28,9 +23,9 @@ interface CartContextType {
     },
     quantity: number
   ) => void;
-  increaseQuantity: (id: number) => void;
-  decreaseQuantity: (id: number) => void;
-  removeFromCart: (id: number) => void;
+  increaseQuantity: (id: string) => void;
+  decreaseQuantity: (id: string) => void;
+  removeFromCart: (id: string) => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
 }
@@ -46,7 +41,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const addToCart = (
     item: {
-      id: number;
+      id: string;
       name: string;
       price: number;
       thumbnail: string;
@@ -65,7 +60,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     });
   };
 
-  const increaseQuantity = (id: number) => {
+  const increaseQuantity = (id: string) => {
     setCart((prev) =>
       prev.map((item) =>
         item.id === id ? { ...item, quantity: item.quantity + 1 } : item
@@ -73,7 +68,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     );
   };
 
-  const decreaseQuantity = (id: number) => {
+  const decreaseQuantity = (id: string) => {
     setCart((prev) =>
       prev.map((i) =>
         i.id === id && i.quantity > 1 ? { ...i, quantity: i.quantity - 1 } : i
@@ -81,7 +76,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     );
   };
 
-  const removeFromCart = (id: number) => {
+  const removeFromCart = (id: string) => {
     setCart((prev) => prev.filter((i) => i.id !== id));
   };
 
