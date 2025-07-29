@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { AddNewProductAction } from "@/app/actions/admin/products";
 import {
   Product,
-  allCategories,
   allAvailabilityStatuses,
   allReturnPolicies,
   AvailabilityStatus,
