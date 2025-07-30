@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { useCart } from "@/context/CartContext";
 import Image from "next/image";
+import QuantityControl from "@/components/common/QuantityControl";
 
 export default function CartPage() {
   const {
@@ -18,7 +19,9 @@ export default function CartPage() {
   if (cart.length === 0) {
     return (
       <div className="container min-h-screen mx-auto p-4">
-        <h1 className="tracking-light text-2xl font-bold leading-tight text-cyan-700 mb-2">Your cart is empty</h1>
+        <h1 className="tracking-light text-2xl font-bold leading-tight text-cyan-700 mb-2">
+          Your cart is empty
+        </h1>
         <p className="text-gray-600 text-sm">
           Add some products to your cart to get started!
         </p>
@@ -26,10 +29,11 @@ export default function CartPage() {
     );
   }
 
-
   return (
     <div className="container mx-auto p-8">
-      <h1 className="tracking-light text-2xl font-bold leading-tight text-cyan-700 mb-8">Your Cart</h1>
+      <h1 className="tracking-light text-2xl font-bold leading-tight text-cyan-700 mb-8">
+        Your Cart
+      </h1>
       <ul>
         {cart.map((item) => (
           <li key={item.id} className="flex items-center mb-4 border-b pb-4">
@@ -47,19 +51,12 @@ export default function CartPage() {
               </p>
               <div className="flex justify-between items-center">
                 <div className="flex items-center mt-2">
-                  <button
-                    onClick={() => decreaseQuantity(item.id)}
-                    className="px-2 py-1 bg-gray-200 text-black rounded"
-                  >
-                    -
-                  </button>
-                  <span className="mx-2">{item.quantity}</span>
-                  <button
-                    onClick={() => increaseQuantity(item.id)}
-                    className="px-2 py-1 bg-gray-200 text-black rounded"
-                  >
-                    +
-                  </button>
+                  <QuantityControl
+                    quantity={item.quantity}
+                    onIncrease={() => increaseQuantity(item.id)}
+                    onDecrease={() => decreaseQuantity(item.id)}
+                    size="sm"
+                  />
                 </div>
                 <div></div>
                 <button

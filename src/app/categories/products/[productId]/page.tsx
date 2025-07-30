@@ -6,6 +6,7 @@ import { getProductById } from "@/utils/products";
 import { useCart } from "@/context/CartContext";
 import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
+import QuantityControl from "@/components/common/QuantityControl";
 
 export default function ProductPage({
   params,
@@ -121,25 +122,14 @@ export default function ProductPage({
           </div>
 
           <div className="flex items-center gap-4 mb-6">
-            <div className="flex items-center border border-gray-300 rounded-lg">
-              <button
-                onClick={handleDecrease}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-l-lg transition-colors"
-                disabled={localQuantity <= 1}
-              >
-                -
-              </button>
-              <span className="px-4 py-2 text-center min-w-[3rem] text-lg">
-                {localQuantity}
-              </span>
-              <button
-                onClick={handleIncrease}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-r-lg transition-colors"
-                disabled={localQuantity >= product.stock}
-              >
-                +
-              </button>
-            </div>
+            <QuantityControl
+              quantity={localQuantity}
+              onIncrease={handleIncrease}
+              onDecrease={handleDecrease}
+              maxQuantity={product.stock}
+              minQuantity={1}
+              size="md"
+            />
 
             <button
               onClick={handleAddToCart}
@@ -159,54 +149,49 @@ export default function ProductPage({
           )}
 
           <div className="space-y-2 text-sm text-gray-600">
-            <p>
-              <strong>Brand:</strong> {product.brand}
-            </p>
-            <p>
-              <strong>Stock:</strong> {product.stock} pcs
-            </p>
-            {product.material && (
-              <p>
-                <strong>Material:</strong> {product.material}
-              </p>
-            )}
-            {product.color && (
-              <p>
-                <strong>Color:</strong> {product.color}
-              </p>
-            )}
-            {product.packQuantity && (
-              <p>
-                <strong>Pack Quantity:</strong> {product.packQuantity}
-              </p>
-            )}
-            {product.pageCount && (
-              <p>
-                <strong>Pages:</strong> {product.pageCount}
-              </p>
-            )}
-            <p>
-              <strong>Weight:</strong> {product.weight} kg
-            </p>
-            <p>
-              <strong>Dimensions:</strong> {product.dimensions?.width} ×{" "}
-              {product.dimensions?.height} × {product.dimensions?.depth} cm
-            </p>
-            <p>
-              <strong>Warranty:</strong> {product.warrantyInformation}
-            </p>
-            <p>
-              <strong>Shipping:</strong> {product.shippingInformation}
-            </p>
-            <p>
-              <strong>Return Policy:</strong> {product.returnPolicy}
-            </p>
-            <p>
-              <strong>Availability:</strong> {product.availabilityStatus}
-            </p>
-            <p>
-              <strong>Minimum Order:</strong> {product.minimumOrderQuantity} pcs
-            </p>
+            {[
+              { label: "Brand", value: product.brand },
+              { label: "Stock", value: `${product.stock} pcs` },
+              {
+                label: "Material",
+                value: product.material,
+                condition: !!product.material,
+              },
+              {
+                label: "Color",
+                value: product.color,
+                condition: !!product.color,
+              },
+              {
+                label: "Pack Quantity",
+                value: product.packQuantity,
+                condition: !!product.packQuantity,
+              },
+              {
+                label: "Pages",
+                value: product.pageCount,
+                condition: !!product.pageCount,
+              },
+              { label: "Weight", value: `${product.weight} kg` },
+              {
+                label: "Dimensions",
+                value: `${product.dimensions?.width} × ${product.dimensions?.height} × ${product.dimensions?.depth} cm`,
+              },
+              { label: "Warranty", value: product.warrantyInformation },
+              { label: "Shipping", value: product.shippingInformation },
+              { label: "Return Policy", value: product.returnPolicy },
+              { label: "Availability", value: product.availabilityStatus },
+              {
+                label: "Minimum Order",
+                value: `${product.minimumOrderQuantity} pcs`,
+              },
+            ]
+              .filter((detail) => detail.condition !== false)
+              .map((detail, index) => (
+                <p key={index}>
+                  <strong>{detail.label}:</strong> {detail.value}
+                </p>
+              ))}
           </div>
         </div>
       </div>
