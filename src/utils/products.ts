@@ -14,6 +14,13 @@ export async function getProductsByCategory(
   category: Category
 ): Promise<Product[]> {
   try {
+    console.log("Fetching products for category:", category);
+    console.log("Firebase config check:", {
+      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ? "Set" : "Missing",
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ? "Set" : "Missing",
+      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ? "Set" : "Missing",
+    });
+    
     // 1. Получаем ссылку на коллекцию "products"
     const productsRef = collection(db, "products");
 
@@ -32,6 +39,7 @@ export async function getProductsByCategory(
       } as Product);
     });
 
+    console.log("Found products:", products.length);
     return products;
   } catch (error) {
     console.error("Error fetching products:", error);
