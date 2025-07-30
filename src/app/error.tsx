@@ -27,8 +27,8 @@ export default function Error({ error, reset }: ErrorProps) {
         </h1>
 
         <p className="text-gray-600 mb-6">
-          We're sorry, but something unexpected happened. Please try again or go
-          back to the home page.
+          We&apos;re sorry, but something unexpected happened. Please try again
+          or go back to the home page.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -43,7 +43,7 @@ export default function Error({ error, reset }: ErrorProps) {
             href="/"
             className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
           >
-         Go Home
+            Go Home
           </Link>
         </div>
       </div>
