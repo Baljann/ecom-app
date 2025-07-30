@@ -42,7 +42,7 @@ export default function CartPage() {
             />
             <div className="flex-1">
               <h2 className="text-xl font-semibold">{item.name}</h2>
-              <p className="font-semibold text-amber-400 ">
+              <p className="font-semibold text-cyan-700">
                 Price: ${item.price}
               </p>
               <div className="flex justify-between items-center">
@@ -76,7 +76,7 @@ export default function CartPage() {
       </ul>
       <div className="mt-8 text-right">
         <p className="text-lg">Total Items: {getTotalItems()}</p>
-        <p className="text-xl font-bold text-amber-400 ">
+        <p className="text-xl font-bold text-cyan-700 ">
           Total Price: ${getTotalPrice().toFixed(2)}
         </p>
       </div>

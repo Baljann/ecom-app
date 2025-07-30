@@ -1,16 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;   /* белый для светлого режима */
-  --foreground: #171717;   /* тёмный текст */
+  --background: #ffffff;
+  --foreground: #171717;   
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #082f49; /* тёмно-синий для dark mode */
-    --foreground: #ededed; /* светлый текст */
-  }
-}
 
 body {
   background: var(--background);
