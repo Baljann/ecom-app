@@ -39,20 +39,7 @@ export default function ProductPage({
   }, [params]);
 
   if (loading) {
-    return (
-      <div className="py-8 pb-20">
-        <div className="animate-pulse">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="relative h-100 bg-gray-200 rounded-lg"></div>
-            <div className="space-y-4">
-              <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
-              <div className="h-6 bg-gray-200 rounded w-1/4"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return null; // Next.js автоматически покажет loading.tsx
   }
 
   if (!product) {
