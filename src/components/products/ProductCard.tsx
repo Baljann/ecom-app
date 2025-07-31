@@ -3,15 +3,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/types/product";
+import {
+  calculateDiscountedPrice,
+  getProductDisplayTitle,
+} from "@/utils/formatters";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const discountedPrice = product.discountPercentage
-    ? product.price * (1 - product.discountPercentage / 100)
-    : product.price;
+  const discountedPrice = calculateDiscountedPrice(
+    product.price,
+    product.discountPercentage
+  );
 
   const imageUrl =
     product.images && product.images.length > 0
@@ -37,8 +42,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <div className="p-4">
-          <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2 h-12 flex items-start">
-            {product.title}
+          <h3
+            className="font-semibold text-gray-800 mb-2 text-sm leading-tight"
+            title={getProductDisplayTitle(product)}
+          >
+            {getProductDisplayTitle(product)}
           </h3>
           <div className="flex items-center gap-2">
             <span className="text-lg font-bold text-cyan-600">
