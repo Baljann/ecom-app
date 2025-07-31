@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 interface CartItem {
   id: string;
@@ -26,6 +32,7 @@ interface CartContextType {
   increaseQuantity: (id: string) => void;
   decreaseQuantity: (id: string) => void;
   removeFromCart: (id: string) => void;
+  clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
 }
@@ -38,6 +45,24 @@ interface CartProviderProps {
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
+
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    const savedCart = localStorage.getItem("cart");
+    if (savedCart) {
+      try {
+        setCart(JSON.parse(savedCart));
+      } catch (error) {
+        console.error("Error loading cart from localStorage:", error);
+        localStorage.removeItem("cart");
+      }
+    }
+  }, []);
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
   const addToCart = (
     item: {
@@ -80,6 +105,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     setCart((prev) => prev.filter((i) => i.id !== id));
   };
 
+  const clearCart = () => {
+    setCart([]);
+  };
+
   const getTotalItems = () => cart.reduce((sum, i) => sum + i.quantity, 0);
 
   const getTotalPrice = () =>
@@ -92,6 +121,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         increaseQuantity,
         decreaseQuantity,
         removeFromCart,
+        clearCart,
         getTotalItems,
         getTotalPrice,
       }}

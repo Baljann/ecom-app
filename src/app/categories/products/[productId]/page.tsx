@@ -80,6 +80,7 @@ export default function ProductPage({
 
   return (
     <div className="py-8 pb-20">
+      <h1 className="text-2xl font-bold text-cyan-700 mb-4">{product.brand}{'. '}{product.title}</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="relative h-100">
           <Image
@@ -92,9 +93,7 @@ export default function ProductPage({
         </div>
 
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">
-            {product.title}
-          </h1>
+         
           <p className="text-gray-600 mb-4">{product.description}</p>
 
           <div className="flex items-center gap-2 mb-6">
