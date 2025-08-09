@@ -6,40 +6,63 @@ import {
   getDocs,
   doc,
   getDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { Product, Category } from "@/types/product";
 
-// Функция получения товаров по категории
+function firestoreTimestampToObject(data: any): any {
+  if (data === null || data === undefined) {
+    return data;
+  }
+
+  if (data instanceof Timestamp) {
+    return data.toDate().toISOString();
+  }
+
+  if (Array.isArray(data)) {
+    return data.map(firestoreTimestampToObject);
+  }
+
+  if (typeof data === "object") {
+    const converted: any = {};
+    for (const [key, value] of Object.entries(data)) {
+      converted[key] = firestoreTimestampToObject(value);
+    }
+    return converted;
+  }
+
+  return data;
+}
+
 export async function getProductsByCategory(
   category: Category
 ): Promise<Product[]> {
   try {
-    // 1. Получаем ссылку на коллекцию "products"
     const productsRef = collection(db, "products");
 
-    // 2. Создаем запрос с фильтром по категории
     const q = query(productsRef, where("category", "==", category));
 
-    // 3. Выполняем запрос
     const querySnapshot = await getDocs(q);
 
-    // 4. Преобразуем данные в массив
     const products: Product[] = [];
     querySnapshot.forEach((doc) => {
-      products.push({
-        id: doc.id, // ID документа из Firebase
-        ...doc.data(), // Все остальные данные
-      } as Product);
-    });
+      const rawData = doc.data();
+      const convertedData = firestoreTimestampToObject(rawData);
 
+      const product = {
+        id: doc.id,
+        ...convertedData,
+      } as Product;
+
+      products.push(product);
+    });
     return products;
   } catch (error) {
     console.error("Error fetching products:", error);
-    return []; // Возвращаем пустой массив при ошибке
+    return [];
   }
 }
 
-// Функция получения одного товара по ID
 export async function getProductById(id: string): Promise<Product | null> {
   try {
     const productsRef = collection(db, "products");
@@ -47,12 +70,15 @@ export async function getProductById(id: string): Promise<Product | null> {
     const docSnap = await getDoc(productDoc);
 
     if (docSnap.exists()) {
+      const rawData = docSnap.data();
+      const convertedData = firestoreTimestampToObject(rawData);
+
       return {
         id: docSnap.id,
-        ...docSnap.data(),
+        ...convertedData,
       } as Product;
     } else {
-      return null; // Товар не найден
+      return null;
     }
   } catch (error) {
     console.error("Error fetching product:", error);
@@ -60,7 +86,6 @@ export async function getProductById(id: string): Promise<Product | null> {
   }
 }
 
-// Функция получения всех товаров
 export async function getAllProducts(): Promise<Product[]> {
   try {
     const productsRef = collection(db, "products");
@@ -68,9 +93,12 @@ export async function getAllProducts(): Promise<Product[]> {
 
     const products: Product[] = [];
     querySnapshot.forEach((doc) => {
+      const rawData = doc.data();
+      const convertedData = firestoreTimestampToObject(rawData);
+
       products.push({
         id: doc.id,
-        ...doc.data(),
+        ...convertedData,
       } as Product);
     });
 

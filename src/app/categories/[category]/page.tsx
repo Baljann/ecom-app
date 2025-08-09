@@ -3,6 +3,10 @@ import ProductGrid from "@/components/products/ProductGrid";
 import { getProductsByCategory } from "@/utils/products";
 import { Category } from "@/types/product";
 
+// Force dynamic rendering to prevent caching issues
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function getCategoryFromSlug(slug: string): string {
   const categoryMap: Record<string, string> = {
     pens: "Pens",

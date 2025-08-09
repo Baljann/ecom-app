@@ -18,11 +18,13 @@ export default function Header() {
               className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
             >
               <Image
-                src="/logo.jpg"
-                alt="MiniCom Logo"
-                width={100}
-                height={100}
-                sizes="100px"
+                  src="/logo.jpg"
+                  alt="MiniCom Logo"
+                  width={0}
+                  height={0}
+                  sizes="100vw"
+                  className="w-[150px] h-auto"
+                  priority
               />
             </Link>
           </div>

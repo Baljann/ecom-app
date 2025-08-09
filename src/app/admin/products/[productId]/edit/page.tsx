@@ -1,7 +1,19 @@
-export default function EditPage() {
-    return (
-      <div className='min-h-screen'>
-        <h1>Edit Page will be here soon</h1>
-      </div>
-    );
+import { getProductById } from "@/utils/products";
+import { notFound } from "next/navigation";
+import ProductForm from "@/components/admin/ProductForm";
+
+export default async function EditProductPage({
+  params,
+}: {
+  params: Promise<{ productId: string }>;
+}) {
+  const { productId } = await params;
+
+  const product = await getProductById(productId);
+
+  if (!product) {
+    notFound();
   }
+
+  return <ProductForm product={product} mode="edit" />;
+}

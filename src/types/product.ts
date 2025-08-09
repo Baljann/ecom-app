@@ -61,5 +61,4 @@ export interface Dimensions {
 export interface Meta {
   createdAt: string;
   updatedAt: string;
-  barcode: string;
 }
