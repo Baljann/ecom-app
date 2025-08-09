@@ -13,128 +13,21 @@ import {
 import { del } from "@vercel/blob";
 import { productSchema } from "@/validations/productSchema";
 import { ProductFormState } from "@/components/admin/ProductForm";
-import {
-  Category,
-  AvailabilityStatus,
-  ReturnPolicy,
-  Product,
-} from "@/types/product";
+import { Product } from "@/types/product";
+import { extractFormData, convertRawDataToInputs, removeUndefined } from "@/utils/productForm";
 
-function extractFormData(formData: FormData) {
-  const getStringValue = (key: string) => {
-    const value = formData.get(key);
-    return value && value.toString().trim() !== ""
-      ? value.toString()
-      : undefined;
-  };
 
-  const getNumberValue = (key: string) => {
-    const value = formData.get(key);
-    return value && value.toString().trim() !== ""
-      ? value.toString()
-      : undefined;
-  };
-
-  return {
-    title: formData.get("title") as string,
-    description: formData.get("description") as string,
-    category: formData.get("category") as string,
-    price: formData.get("price") as string,
-    stock: formData.get("stock") as string,
-    tags: formData.getAll("tags") as string[],
-    brand: formData.get("brand") as string,
-    weight: formData.get("weight") as string,
-    dimensions: {
-      width: formData.get("dimensions.width") as string,
-      height: formData.get("dimensions.height") as string,
-      depth: formData.get("dimensions.depth") as string,
-    },
-    material: getStringValue("material"),
-    color: getStringValue("color"),
-    packQuantity: getNumberValue("packQuantity"),
-    pageCount: getNumberValue("pageCount"),
-    discountPercentage: getNumberValue("discountPercentage"),
-    warrantyInformation: formData.get("warrantyInformation") as string,
-    shippingInformation: formData.get("shippingInformation") as string,
-    availabilityStatus: formData.get("availabilityStatus") as string,
-    returnPolicy: formData.get("returnPolicy") as string,
-    minimumOrderQuantity: formData.get("minimumOrderQuantity") as string,
-    images: formData.getAll("images") as string[],
-    meta: {
-      createdAt: "",
-      updatedAt: "",
-    },
-  };
-}
-
-function convertRawDataToInputs(rawData: ReturnType<typeof extractFormData>) {
-  return {
-    title: rawData.title,
-    description: rawData.description,
-    category: rawData.category as Category,
-    price: parseFloat(rawData.price) || 0,
-    discountPercentage: rawData.discountPercentage
-      ? parseFloat(rawData.discountPercentage)
-      : undefined,
-    stock: parseInt(rawData.stock) || 0,
-    brand: rawData.brand,
-    weight: parseFloat(rawData.weight) || 0,
-    dimensions: {
-      width: parseFloat(rawData.dimensions.width) || 0,
-      height: parseFloat(rawData.dimensions.height) || 0,
-      depth: parseFloat(rawData.dimensions.depth) || 0,
-    },
-    material: rawData.material || undefined,
-    color: rawData.color || undefined,
-    packQuantity: rawData.packQuantity
-      ? parseInt(rawData.packQuantity)
-      : undefined,
-    pageCount: rawData.pageCount ? parseInt(rawData.pageCount) : undefined,
-    warrantyInformation: rawData.warrantyInformation,
-    shippingInformation: rawData.shippingInformation,
-    availabilityStatus: rawData.availabilityStatus as AvailabilityStatus,
-    returnPolicy: rawData.returnPolicy as ReturnPolicy,
-    minimumOrderQuantity: parseInt(rawData.minimumOrderQuantity) || 1,
-    images: rawData.images,
-    meta: rawData.meta,
-    id: undefined,
-  };
-}
-
-function removeUndefined(obj: any): any {
-  if (obj === undefined || obj === null) {
-    return undefined;
-  }
-
-  if (Array.isArray(obj)) {
-    return obj.map(removeUndefined).filter((item) => item !== undefined);
-  }
-
-  if (typeof obj === "object") {
-    const cleaned: any = {};
-    for (const [key, value] of Object.entries(obj)) {
-      const cleanedValue = removeUndefined(value);
-      if (cleanedValue !== undefined) {
-        cleaned[key] = cleanedValue;
-      }
-    }
-    return Object.keys(cleaned).length > 0 ? cleaned : undefined;
-  }
-
-  return obj;
-}
 
 export async function AddNewProductAction(
   currentState: ProductFormState,
   formData: FormData
 ): Promise<ProductFormState> {
   const rawData = extractFormData(formData);
-  const productId = formData.get("id") as string;
-  const isEditMode = !!productId;
+  const isEditMode = !!rawData.id;
 
   console.log("Raw data from form:", rawData);
   console.log("Mode:", isEditMode ? "edit" : "create");
-  console.log("Product ID:", productId);
+  console.log("Product ID:", rawData.id);
 
   const result = productSchema.safeParse(rawData);
 
@@ -161,7 +54,7 @@ export async function AddNewProductAction(
 
   try {
     if (isEditMode) {
-      const existingProductDoc = doc(db, collections.products, productId);
+      const existingProductDoc = doc(db, collections.products, rawData.id);
       const existingProductSnap = await getDoc(existingProductDoc);
 
       if (!existingProductSnap.exists()) {
@@ -197,7 +90,7 @@ export async function AddNewProductAction(
           createdAt: existingProduct.meta?.createdAt || serverTimestamp(),
           updatedAt: serverTimestamp(),
         },
-        id: productId,
+        id: rawData.id,
       };
 
       const finalData = removeUndefined(documentData);
@@ -207,7 +100,7 @@ export async function AddNewProductAction(
         JSON.stringify(finalData, null, 2)
       );
 
-      await setDoc(doc(db, collections.products, productId), finalData);
+      await setDoc(doc(db, collections.products, rawData.id), finalData);
 
       return {
         success: true,
@@ -219,7 +112,7 @@ export async function AddNewProductAction(
               existingProduct.meta?.createdAt || new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           },
-          id: productId,
+          id: rawData.id,
         },
       };
     } else {
@@ -281,7 +174,7 @@ export async function AddNewProductAction(
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
-        id: isEditMode ? productId : undefined,
+          id: isEditMode ? rawData.id : undefined,
       },
     };
   }
@@ -307,9 +200,9 @@ export async function DeleteProductAction(
   currentState: ProductFormState,
   formData: FormData
 ): Promise<ProductFormState> {
-  const productId = formData.get("id") as string;
+  const rawData = extractFormData(formData);
 
-  if (!productId) {
+  if (!rawData.id) {
     return {
       success: false,
       message: "Product ID is required",
@@ -319,7 +212,7 @@ export async function DeleteProductAction(
   }
 
   try {
-    const productDoc = doc(db, collections.products, productId);
+    const productDoc = doc(db, collections.products, rawData.id);
     const productSnap = await getDoc(productDoc);
 
     if (!productSnap.exists()) {
